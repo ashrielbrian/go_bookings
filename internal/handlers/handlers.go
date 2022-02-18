@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/ashrielbrian/go_bookings/pkg/config"
-	"github.com/ashrielbrian/go_bookings/pkg/models"
-	"github.com/ashrielbrian/go_bookings/pkg/render"
+	"github.com/ashrielbrian/go_bookings/internal/config"
+	"github.com/ashrielbrian/go_bookings/internal/models"
+	"github.com/ashrielbrian/go_bookings/internal/render"
 )
 
 // Repo is the repository used by the handlers
@@ -49,6 +51,26 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 }
 func (m *Repository) Availability(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(w, r, "search-availability.page.tmpl", &models.TemplateData{})
+}
+
+type jsonResponse struct {
+	OK      bool   `json:"ok"`
+	Message string `json:"message"`
+}
+
+func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
+	resp := jsonResponse{
+		OK:      true,
+		Message: "Available!",
+	}
+
+	out, err := json.MarshalIndent(resp, "", "     ")
+	if err != nil {
+		log.Println(err)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
+
 }
 func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 	start := r.Form.Get("start")
