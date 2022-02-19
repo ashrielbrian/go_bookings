@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/ashrielbrian/go_bookings/internal/config"
 	"github.com/ashrielbrian/go_bookings/internal/handlers"
+	"github.com/ashrielbrian/go_bookings/internal/models"
 	"github.com/ashrielbrian/go_bookings/internal/render"
 
 	"github.com/alexedwards/scs/v2"
@@ -19,6 +21,28 @@ var app = config.AppConfig{}
 var session *scs.SessionManager
 
 func main() {
+	err := run()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Application listening on port %s", portNumber)
+	srv := http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
+
+	err = srv.ListenAndServe()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+}
+
+func run() error {
+	gob.Register(models.Reservation{})
 
 	// change this to true when deploying to production
 	app.InProduction = false
@@ -37,6 +61,7 @@ func main() {
 
 	if err != nil {
 		log.Fatal("Error loading app config...")
+		return err
 	}
 
 	app.TemplateCache = tc
@@ -45,20 +70,5 @@ func main() {
 	repo := handlers.NewRepository(&app)
 	handlers.NewHandlers(repo)
 
-	// http.HandleFunc("/", handlers.Repo.Home)
-	// http.HandleFunc("/about", handlers.Repo.About)
-	// _ = http.ListenAndServe(portNumber, nil)
-
-	fmt.Printf("Application listening on port %s", portNumber)
-	srv := http.Server{
-		Addr:    portNumber,
-		Handler: routes(&app),
-	}
-
-	err = srv.ListenAndServe()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	return nil
 }

@@ -149,6 +149,20 @@
             })
         }
 
+        /* Checks if error, flash exist in TemplateData */
+        {{ with .Error}}
+        console.log({{.}})
+        notify("{{.}}", "error")
+        {{ end }}
+
+        {{ with .Flash}}
+        notify("{{.}}", "success")
+        {{ end }}
+
+        {{ with .Warning}}
+        notify("{{.}}", "warning")
+        {{ end }}
+
         function Prompt() {
             let toast = function (c) {
                 const {
