@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/ashrielbrian/go_bookings/internal/config"
 	"github.com/ashrielbrian/go_bookings/internal/handlers"
+	"github.com/ashrielbrian/go_bookings/internal/helpers"
 	"github.com/ashrielbrian/go_bookings/internal/models"
 	"github.com/ashrielbrian/go_bookings/internal/render"
 
@@ -56,6 +58,8 @@ func run() error {
 	app.Session = session
 
 	app.UseCache = false
+	app.InfoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.ErrorLog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	tc, err := render.CreateTemplateCache()
 
@@ -66,9 +70,10 @@ func run() error {
 
 	app.TemplateCache = tc
 
-	render.NewTemplates(&app)
 	repo := handlers.NewRepository(&app)
+	render.NewTemplates(&app)
 	handlers.NewHandlers(repo)
+	helpers.NewHelpers(&app)
 
 	return nil
 }
