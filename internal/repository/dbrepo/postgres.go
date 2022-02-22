@@ -129,8 +129,8 @@ func (m *postgresDBRepo) SearchAvailabiltyForAllRooms(start, end time.Time) ([]m
 	for rows.Next() {
 		var room models.Room
 		err := rows.Scan(
-			room.ID,
-			room.RoomName,
+			&room.ID,
+			&room.RoomName,
 		)
 
 		if err != nil {
